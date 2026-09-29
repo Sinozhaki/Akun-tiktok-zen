@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard Akun</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* REFINED AMOLED PASTEL COLORS */
+            --bg-color: #000000;
+            --container-bg: rgba(28, 28, 30, 0.4); 
+            --card-bg: rgba(44, 44, 46, 0.5);
+            --input-bg: rgba(58, 58, 60, 0.5);
+            --border-color: rgba(255, 255, 255, 0.08);
+            
+            --text-main: #ffffff;
+            --text-muted: #ebebf599; 
+            
+            --btn-blue: #339af0;
+            --active-color: #339af0;
+            --active-bg: rgba(51, 154, 240, 0.15);
+            --inactive-color: #868e96;
+            --inactive-bg: rgba(134, 142, 150, 0.15);
+            
+            --danger-color: #ff6b6b;
+            --warning-color: #fcc419;
+
+            --local-color: #51cf66;
+            --local-bg: rgba(81, 207, 102, 0.15);
+            --usa-color: #748ffc;
+            --usa-bg: rgba(116, 143, 252, 0.15);
+            --affiliate-color: #b197fc;
+            --affiliate-bg: rgba(177, 151, 252, 0.15);
+            --no-affiliate-color: #868e96;
+            --no-affiliate-bg: rgba(134, 142, 150, 0.15);
+        }
+
+        /* BACKGROUND ORBS */
+        body::before {
+            content: ""; position: fixed; top: 5%; left: 5%; width: 50vw; height: 50vw; max-width: 400px; max-height: 400px;
+            background: rgba(51, 154, 240, 0.2); border-radius: 50%; filter: blur(90px); z-index: -1; animation: floatOrb 15s infinite ease-in-out alternate;
+        }
+        body::after {
+            content: ""; position: fixed; bottom: 5%; right: 5%; width: 40vw; height: 40vw; max-width: 350px; max-height: 350px;
+            background: rgba(255, 255, 255, 0.08); border-radius: 50%; filter: blur(70px); z-index: -1; animation: floatOrb 12s infinite ease-in-out alternate-reverse;
+        }
+        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(50px, -50px) scale(1.1); } }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        /* RESET & BASE */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-color); color: var(--text-main);
+            padding: 12px 10px 40px; font-size: 12px; display: flex; justify-content: center; min-height: 100vh;
+        }
+        .main-container { width: 100%; max-width: 600px; }
+
+        /* REFINED GLASSMORPHISM */
+        .glass-panel {
+            background: var(--container-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-color); box-shadow: inset 0 1px 1px rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        /* ICONS (SVG) */
+        .icon { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+        .icon-sm { width: 12px; height: 12px; }
+        .icon-lg { width: 24px; height: 24px; }
+
+        /* HEADER */
+        .app-top-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-radius: 20px; margin-bottom: 20px; }
+        .app-top-header h2 { font-weight: 800; font-size: 18px; letter-spacing: 0.5px; }
+        .header-actions { display: flex; gap: 8px; }
+        .btn-action-glass {
+            background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 8px 14px; border-radius: 12px; font-weight: 600; font-size: 11px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-action-glass:active { transform: scale(0.95); background: rgba(255,255,255,0.15); }
+        .btn-action-glass.danger { color: var(--danger-color); border-color: rgba(255, 107, 107, 0.3); }
+
+        /* FOLDER TABLE / CARDS GRID */
+        .folder-root-header { display: flex; justify-content: space-between; align-items: center; padding: 0 8px; margin-bottom: 16px; gap: 8px; }
+        .folder-root-title { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; }
+        
+        .folder-list-grid { display: grid; grid-template-columns: 1fr; gap: 14px; padding: 0 8px; }
+        @media (min-width: 480px) { .folder-list-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .folder-stat-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 16px; backdrop-filter: blur(10px);
+            cursor: pointer; transition: transform 0.2s, background 0.2s;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .folder-stat-card:active { transform: scale(0.96); background: rgba(255,255,255,0.05); }
+        
+        .fsc-header { display: flex; justify-content: space-between; align-items: center; }
+        .fsc-title-group { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; }
+        .fsc-icon { width: 36px; height: 36px; background: rgba(51, 154, 240, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--btn-blue); }
+        .fsc-total { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; color: #fff; }
+        
+        .fsc-stats-container { display: flex; flex-direction: column; gap: 8px; }
+        .fsc-stats-row { 
+            display: flex; justify-content: space-between; background: rgba(0,0,0,0.25); 
+            padding: 10px 12px; border-radius: 10px; font-size: 11px; font-weight: 600; color: var(--text-muted);
+        }
+        .fsc-stat-item { display: flex; align-items: center; gap: 6px; }
+        .fsc-stat-val { color: #fff; font-weight: 800; font-size: 13px; }
+
+        .view-animate { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* STICKY HEADER FOLDER DETAIL */
+        .fd-header-sticky {
+            position: sticky; top: 0; z-index: 10; background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            padding: 16px 8px 12px; margin: -12px -8px 12px -8px; 
+            border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;
+        }
+        .btn-back-ios { background: none; border: none; font-size: 14px; color: var(--btn-blue); cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 600; padding: 0; }
+        
+        .stats-chip-container { display: flex; gap: 8px; overflow-x: auto; padding: 0 8px 16px; scrollbar-width: none; }
+        .stats-chip-container::-webkit-scrollbar { display: none; }
+        .stats-chip { background: var(--card-bg); padding: 10px 14px; border-radius: 14px; font-size: 10px; font-weight: 600; display: flex; flex-direction: column; min-width: 86px; border: 1px solid var(--border-color); }
+        .stats-chip span:last-child { font-size: 18px; font-weight: 800; margin-top: 4px; }
+
+        /* SEARCH & FILTER */
+        .search-box { position: relative; margin: 0 8px 16px; }
+        .search-input { width: 100%; height: 40px; padding: 0 36px; background: rgba(118, 118, 128, 0.24); border: 1px solid transparent; border-radius: 12px; font-size: 13px; color: #fff; outline: none; transition: 0.2s; }
+        .search-input:focus { border-color: rgba(255,255,255,0.2); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        .filter-section { display:flex; flex-wrap:wrap; gap:8px; margin: 0 8px 20px; }
+        .filter-btn { background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .filter-btn.active { background: #fff; color: #000; }
+
+        /* SWIPE TO ACTION CARDS */
+        .grid-container { display: grid; grid-template-columns: 1fr; gap: 14px; padding: 0 8px; }
+        
+        .swipe-wrapper {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+            border-radius: 18px; border: 1px solid var(--border-color); background: rgba(30,30,30,0.6);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .swipe-wrapper::-webkit-scrollbar { display: none; }
+        
+        .swipe-content {
+            flex: 0 0 100%; scroll-snap-align: start; background: var(--card-bg);
+            backdrop-filter: blur(20px); padding: 16px; border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        .swipe-actions { flex: 0 0 auto; display: flex; scroll-snap-align: end; }
+        .action-btn { width: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: none; color: white; cursor: pointer; gap: 6px; font-size: 10px; font-weight: 700; font-family: inherit; }
+        .action-btn.move { background: rgba(51, 154, 240, 0.15); color: var(--btn-blue); }
+        .action-btn.edit { background: rgba(252, 196, 25, 0.15); color: var(--warning-color); }
+        .action-btn.del { background: rgba(255, 107, 107, 0.15); color: var(--danger-color); }
+        .action-btn:active { opacity: 0.7; }
+
+        /* CARD INNER STYLES */
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .email-icon-box { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .email-icon-box.active { background: var(--active-bg); color: var(--active-color); }
+        .email-icon-box.inactive { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+        
+        .status-badge { padding: 4px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; display:flex; align-items:center; gap:4px; }
+        .status-badge.active { background: var(--local-bg); color: var(--local-color); }
+        .status-badge.inactive { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+
+        .account-title { font-weight: 800; font-size: 16px; margin-bottom: 10px; }
+        
+        .badge-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+        .tag-badge { padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; display:flex; align-items:center; gap:4px; }
+        .tag-badge.local { background: var(--local-bg); color: var(--local-color); }
+        .tag-badge.amerika { background: var(--usa-bg); color: var(--usa-color); }
+        .tag-badge.on { background: var(--affiliate-bg); color: var(--affiliate-color); }
+        .tag-badge.off { background: var(--no-affiliate-bg); color: var(--no-affiliate-color); }
+
+        .card-body { font-size: 12px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .card-body-row { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-weight: 500; }
+        .card-body-row span.val { color: #fff; font-weight: 600; font-family: monospace; font-size: 13px; }
+
+        .timer-section { margin-top: 4px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); }
+        .timer-display { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .timer-label { font-size: 11px; color: var(--text-muted); font-weight: 600; display:flex; align-items:center; gap:4px; }
+        .timer-value { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .timer-value.running { color: var(--local-color); }
+        .timer-value.paused { color: var(--warning-color); }
+        .timer-value.expired { color: var(--danger-color); }
+        .timer-actions { display: flex; gap: 8px; }
+        .btn-timer { flex: 1; padding: 8px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-timer:active { transform: scale(0.95); }
+
+        /* SKELETON LOADING */
+        .skeleton-block { background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 400% 100%; animation: shimmer 1.5s infinite linear; border-radius: 12px; }
+
+        /* EMPTY STATE SVG */
+        .empty-state { text-align: center; color: var(--text-muted); padding: 50px 10px; font-size: 13px; font-weight: 600; display:flex; flex-direction:column; align-items:center; gap:12px; }
+        .empty-icon { color: rgba(255,255,255,0.1); width: 64px; height: 64px; }
+
+        /* CUSTOM TOAST & MODALS */
+        #toast-container {
+            position: fixed; top: 30px; left: 50%; transform: translate(-50%, -20px); opacity: 0; pointer-events: none;
+            background: rgba(44, 44, 46, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border-color);
+            color: white; padding: 12px 20px; border-radius: 30px; font-size: 12px; font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; gap: 8px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #toast-container.show { transform: translate(-50%, 0); opacity: 1; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: flex-end; justify-content: center; padding: 0; }
+        .modal.center { align-items: center; padding: 20px; }
+        .modal-content { background: rgb(28, 28, 30); border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); border: 1px solid var(--border-color); }
+        .modal.center .modal-content { border-radius: 24px; padding: 24px; animation: popIn 0.3s forwards; }
+        
+        .modal-drag-handle { width: 40px; height: 5px; background: rgba(255,255,255,0.2); border-radius: 3px; margin: 0 auto 20px; }
+        .modal-title { font-weight: 800; font-size: 18px; margin-bottom: 24px; text-align: center; }
+
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+        input, select, textarea { width: 100%; padding: 14px; background: rgba(118, 118, 128, 0.15); border: 1px solid transparent; border-radius: 14px; font-size: 13px; font-family: inherit; color: #fff; outline: none; transition: 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--btn-blue); background: rgba(118, 118, 128, 0.25); }
+        
+        .btn-submit { width: 100%; padding: 16px; background: var(--btn-blue); color: white; border: none; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
+
+        .folder-grid-selector { display: grid; gap: 10px; max-height: 300px; overflow-y: auto; margin-bottom: 16px; }
+        .folder-choice-card { background: rgba(255,255,255,0.05); padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; cursor: pointer; }
+        .folder-choice-card.selected { background: var(--active-bg); border-color: var(--btn-blue); }
+        
+        /* SWIPE HINT */
+        .swipe-hint { text-align: center; font-size: 10px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+        /* ANDROID / NARROW SCREEN OPTIMIZATION */
+        html { -webkit-text-size-adjust: 100%; }
+        body { overflow-x: hidden; overscroll-behavior-x: none; }
+        button, input, select, textarea { touch-action: manipulation; }
+        .main-container { width: min(100%, 600px); }
+        .app-top-header { gap: 8px; }
+        .header-actions { min-width: 0; }
+        .btn-action-glass { white-space: nowrap; min-height: 38px; }
+        .folder-root-header { gap: 8px; }
+        .folder-root-title { min-width: 0; }
+        .stats-chip-container { margin-bottom: 2px; }
+        .search-input { min-width: 0; }
+        .card-body-row { gap: 10px; }
+        .card-body-row span.val { max-width: 72%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Direct account cards: no horizontal table scrolling */
+        .account-card-list { display:grid; grid-template-columns:1fr; gap:10px; padding:0 8px; }
+        .direct-account-card {
+            background:var(--card-bg); border:1px solid var(--border-color);
+            border-radius:16px; padding:13px; backdrop-filter:blur(16px);
+            box-shadow:0 4px 12px rgba(0,0,0,.18);
+        }
+        .dac-top { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px; }
+        .dac-name { font-size:14px; font-weight:800; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .dac-sub { color:var(--text-muted); font-size:10px; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .dac-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:9px; }
+        .dac-item { background:rgba(0,0,0,.24); border-radius:10px; padding:8px 9px; min-width:0; }
+        .dac-label { display:block; color:var(--text-muted); font-size:9px; margin-bottom:3px; }
+        .dac-value { display:block; color:#fff; font-size:10px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .dac-actions { display:flex; gap:7px; margin-top:9px; }
+        .dac-actions button { flex:1; min-height:36px; border:1px solid var(--border-color); border-radius:10px; background:rgba(255,255,255,.07); color:#fff; font-family:inherit; font-size:10px; font-weight:700; }
+        .dac-actions .edit { color:var(--warning-color); background:rgba(252,196,25,.10); }
+        .dac-actions .move { color:var(--btn-blue); background:rgba(51,154,240,.10); }
+        .dac-actions .del { color:var(--danger-color); background:rgba(255,107,107,.10); }
+        .table-mode-note { padding:0 8px 10px; color:var(--text-muted); font-size:10px; }
+        .view-switch { display:flex; gap:6px; }
+        .view-switch .btn-action-glass.active { background:#fff; color:#000; }
+
+        @media (max-width: 380px) {
+            body { padding:8px 7px 30px; font-size:11px; }
+            .app-top-header { padding:10px 11px; border-radius:15px; margin-bottom:14px; }
+            .app-top-header h2 { font-size:16px; }
+            .header-actions { gap:5px; }
+            .btn-action-glass { padding:7px 9px; font-size:10px; border-radius:10px; }
+            .folder-root-header { padding:0 5px; margin-bottom:11px; }
+            .folder-root-title { font-size:19px; }
+            .folder-list-grid, .grid-container, .account-card-list { padding:0 5px; gap:9px; }
+            .folder-stat-card { padding:12px; border-radius:14px; gap:10px; }
+            .fsc-title-group { font-size:13px; }
+            .fsc-icon { width:31px; height:31px; border-radius:10px; }
+            .search-box, .filter-section { margin-left:5px; margin-right:5px; }
+            .filter-section { gap:5px; margin-bottom:12px; }
+            .filter-btn { padding:7px 9px; font-size:10px; }
+            .swipe-hint { display:none; }
+            .swipe-content { padding:12px; }
+            .account-title { font-size:14px; }
+            .modal-content { padding:20px 14px 30px; }
+            .form-group { margin-bottom:12px; }
+            input, select, textarea { padding:12px; font-size:12px; border-radius:11px; }
+            .dac-grid { gap:5px; }
+            .dac-item { padding:7px; }
+        }
+
+        @media (max-width: 330px) {
+            .header-actions .btn-action-glass { padding-left:7px; padding-right:7px; }
+            .app-top-header h2 { font-size:15px; }
+            .dac-grid { grid-template-columns:1fr; }
+            .stats-chip { min-width:78px; padding:8px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- HEADER -->
+    <div class="app-top-header glass-panel">
+        <h2>Dashboard</h2>
+        <div class="header-actions">
+            <button class="btn-action-glass danger" onclick="resetSemuaStatus()">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg> Reset
+            </button>
+            <button class="btn-action-glass" onclick="openModalForAdd()">
+                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Akun
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN VIEW -->
+    <div id="dynamicViewContainer" class="view-animate"></div>
+
+</div>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast-container">
+    <svg id="toastIcon" class="icon" viewBox="0 0 24 24"></svg>
+    <span id="toastMsg"></span>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal" class="modal center">
+    <div class="modal-content glass-panel" style="max-width: 320px; text-align:center;">
+        <svg class="icon icon-lg" style="color:var(--danger-color); margin-bottom:16px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h3 id="confirmTitle" style="margin-bottom:8px; font-size:18px; font-weight:800;">Konfirmasi</h3>
+        <p id="confirmDesc" style="font-size:12px; color:var(--text-muted); margin-bottom:24px; line-height:1.5;"></p>
+        <div style="display:flex; gap:12px;">
+            <button class="btn-action-glass" style="flex:1; justify-content:center; padding:12px;" onclick="closeConfirm()">Batal</button>
+            <button class="btn-action-glass danger" style="flex:1; justify-content:center; padding:12px; background:rgba(255,107,107,0.15);" id="confirmOkBtn">Ya, Lanjutkan</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PINDAH FOLDER -->
+<div id="moveModal" class="modal" onclick="if(event.target===this) closeMoveModal()">
+    <div class="modal-content glass-panel">
+        <div class="modal-drag-handle"></div>
+        <div class="modal-title">Pindahkan ke Folder</div>
+        <div class="folder-grid-selector" id="folderChoiceList"></div>
+        <button type="button" class="btn-submit" onclick="confirmMoveFolder()">Pindahkan</button>
+    </div>
+</div>
+
+<!-- MODAL ADMIN -->
+<div id="adminModal" class="modal" onclick="if(event.target===this) closeModal()">
+    <div class="modal-content glass-panel">
+        <div class="modal-drag-handle"></div>
+        <div class="modal-title" id="editTitleHeader">Tambah Akun</div>
+        <form id="singleForm">
+            <input type="hidden" id="editDataId">
+            <div class="form-group">
+                <label>Pilih Folder</label>
+                <select id="akunFolder"></select>
+            </div>
+            <div class="form-group">
+                <label>Platform / Nama</label>
+                <input type="text" id="akun" placeholder="Contoh: IG Utama" required>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="kategori">
+                        <option value="Akun Lokal">Lokal</option><option value="Akun Amerika">Amerika</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Affiliate</label>
+                    <select id="affiliate">
+                        <option value="Affiliate ON">Aktif</option><option value="Tidak ada affiliate">Tidak Ada</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+            <div class="form-group"><label>Password</label><input type="text" id="password" required></div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="status"><option value="Sedang digunakan">Digunakan</option><option value="Tidak digunakan">Tidak Digunakan</option></select>
+            </div>
+            <div class="form-group" id="timerFormGroup">
+                <label>Auto-Timer</label>
+                <select id="timerPreset">
+                    <option value="0">Tanpa Timer</option>
+                    <option value="86400">24 Jam</option>
+                    <option value="259200">3 Hari</option>
+                    <option value="604800">7 Hari</option>
+                    <option value="2592000">30 Hari</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit" id="btnSubmitSingle">Simpan Akun</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const BIN_ID = '6a9e7de8ac6210605aaee5d6';
+    const MASTER_KEY = '$2a$10$RNEa6WotETz.PwB.C8XoL.mbOHv4pRJ/Z6mMMStaJiA7pXV9/AgU6';
+    const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+    let globalData = [];
+    let timerInterval = null;
+    let statusFilter = 'all'; let timerFilter = 'all';
+    let currentOpenFolder = null;
+    let accountViewMode = 'folder'; 
+    let movingAccountId = null; let selectedTargetFolder = null;
+    const DEFAULT_FOLDER = "Tanpa Folder";
+    let confirmCallback = null;
+
+    // SVG ICONS
+    const ICONS = {
+        folder: `<svg class="icon" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>`,
+        lokal: `<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+        usa: `<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+        active: `<svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+        inactive: `<svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+        link: `<svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+        check: `<svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
+        error: `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+        clock: `<svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+        empty: `<svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`
+    };
+
+    /* HAPTIC FEEDBACK */
+    function vibrate() { if(navigator.vibrate) navigator.vibrate(15); }
+
+    /* TOAST & CONFIRM UI */
+    function showToast(msg, type='success') {
+        const t = document.getElementById('toast-container');
+        document.getElementById('toastMsg').textContent = msg;
+        document.getElementById('toastIcon').innerHTML = type==='success' ? ICONS.check : ICONS.error;
+        document.getElementById('toastIcon').style.color = type==='success' ? '#32d74b' : '#ff6b6b';
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+        vibrate();
+    }
+    
+    function showConfirm(title, desc, onOk) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmDesc').textContent = desc;
+        confirmCallback = onOk;
+        document.getElementById('confirmModal').style.display = 'flex';
+        vibrate();
+    }
+    function closeConfirm() { document.getElementById('confirmModal').style.display = 'none'; confirmCallback = null; }
+    document.getElementById('confirmOkBtn').addEventListener('click', () => { if(confirmCallback) confirmCallback(); closeConfirm(); });
+
+    /* DATA UTILS */
+    function getAvailableFolders() {
+        const st = JSON.parse(localStorage.getItem('user_folders') || '[]');
+        return Array.from(new Set([DEFAULT_FOLDER, ...st, ...globalData.map(d=>d.folder||DEFAULT_FOLDER)]));
+    }
+    function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function isStatusActive(s) { const v=String(s||'').toLowerCase(); return !v.includes('tidak') && !v.includes('mati') && (v.includes('digunakan')||v.includes('aktif')||v.includes('✅')); }
+    function normalizeCat(c) { const v=String(c||'').toLowerCase(); return v.includes('usa')||v.includes('amerika')||v==='us' ? 'Akun Amerika' : 'Akun Lokal'; }
+    function normalizeAff(a) { const v=String(a||'').toLowerCase(); return v.includes('on')||v.includes('yes') ? 'Affiliate ON' : 'Tidak ada affiliate'; }
+
+    /* RENDER CORE */
+    function renderView() {
+        const container = document.getElementById('dynamicViewContainer');
+        if (currentOpenFolder === null) {
+            if (accountViewMode === 'table') { renderAccountCards(); return; }
+            const folders = getAvailableFolders();
+            let html = `<div class="folder-root-header"><div class="folder-root-title">Akun <span style="font-size:12px;color:var(--text-muted);font-weight:600;">(${globalData.length})</span></div><div class="view-switch"><button class="btn-action-glass ${accountViewMode==='folder'?'active':''}" onclick="vibrate(); accountViewMode='folder'; renderView()">Folder</button><button class="btn-action-glass ${accountViewMode==='table'?'active':''}" onclick="vibrate(); accountViewMode='table'; renderView()">Tabel</button><button class="btn-action-glass" aria-label="Tambah folder" onclick="vibrate(); const n=prompt('Nama Folder:'); if(n){let s=JSON.parse(localStorage.getItem('user_folders')||'[]'); if(!s.includes(n.trim())){s.push(n.trim()); localStorage.setItem('user_folders',JSON.stringify(s)); renderView();}}"><svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div></div><div class="folder-list-grid">`;
+            
+            folders.forEach(f => {
+                const fData = globalData.filter(d => (d.folder || DEFAULT_FOLDER) === f);
+                const total = fData.length;
+                const active = fData.filter(d => isStatusActive(d.status)).length;
+                const inactive = total - active;
+                const lokal = fData.filter(d => normalizeCat(d.kategori) === 'Akun Lokal').length;
+                const usa = total - lokal;
+                
+                html += `
+                    <div class="folder-stat-card" onclick="vibrate(); currentOpenFolder='${escapeHtml(f)}'; document.getElementById('dynamicViewContainer').classList.remove('view-animate'); void document.getElementById('dynamicViewContainer').offsetWidth; document.getElementById('dynamicViewContainer').classList.add('view-animate'); renderView();">
+                        <div class="fsc-header">
+                            <div class="fsc-title-group">
+                                <div class="fsc-icon">${ICONS.folder}</div>
+                                ${escapeHtml(f)}
+                            </div>
+                            <div class="fsc-total">${total} Akun</div>
+                        </div>
+                        <div class="fsc-stats-container">
+                            <div class="fsc-stats-row">
+                                <div class="fsc-stat-item"><span style="color:var(--local-color)">🟢 Aktif</span> <span class="fsc-stat-val">${active}</span></div>
+                                <div class="fsc-stat-item"><span style="color:var(--text-muted)">⚪ Non-Aktif</span> <span class="fsc-stat-val">${inactive}</span></div>
+                            </div>
+                            <div class="fsc-stats-row">
+                                <div class="fsc-stat-item"><span style="color:var(--local-color)">🇮🇩 Lokal</span> <span class="fsc-stat-val">${lokal}</span></div>
+                                <div class="fsc-stat-item"><span style="color:var(--usa-color)">🇺🇸 US</span> <span class="fsc-stat-val">${usa}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html + `</div>`;
+        } else {
+            const q = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+            const allD = globalData.filter(i => (i.folder || DEFAULT_FOLDER) === currentOpenFolder);
+            const fData = allD.filter(i => (!q || [i.akun,i.email,i.kategori,i.status].some(v=>String(v).toLowerCase().includes(q))) &&
+                (statusFilter==='all' || (statusFilter==='active'===isStatusActive(i.status))) &&
+                (timerFilter==='all' || (!isStatusActive(i.status) ? false : getTimerRemaining(i)>0 && getTimerRemaining(i)<=3600))
+            );
+            
+            let html = `
+                <div class="fd-header-sticky">
+                    <button class="btn-back-ios" onclick="vibrate(); currentOpenFolder=null; renderView();"><svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg> Folder</button>
+                    <div style="font-weight:800; font-size:16px;">${escapeHtml(currentOpenFolder)}</div>
+                    ${currentOpenFolder!==DEFAULT_FOLDER ? `<button class="btn-action-glass danger" style="padding:6px; border:none; background:transparent;" onclick="showConfirm('Hapus Folder','Pindah isi ke Tanpa Folder?',()=>{let s=JSON.parse(localStorage.getItem('user_folders')||'[]'); localStorage.setItem('user_folders',JSON.stringify(s.filter(x=>x!==currentOpenFolder))); let upd=globalData.map(i=>(i.folder||DEFAULT_FOLDER)===currentOpenFolder?{...i,folder:DEFAULT_FOLDER}:i); currentOpenFolder=null; syncWithServer(upd);})"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>` : '<div style="width:24px"></div>'}
+                </div>
+                
+                <div class="stats-chip-container">
+                    <div class="stats-chip"><span style="color:var(--text-muted)">Total Akun</span><span>${allD.length}</span></div>
+                    <div class="stats-chip"><span style="color:var(--local-color)">Aktif</span><span>${allD.filter(d=>isStatusActive(d.status)).length}</span></div>
+                    <div class="stats-chip"><span style="color:var(--usa-color)">Amerika</span><span>${allD.filter(d=>normalizeCat(d.kategori)==='Akun Amerika').length}</span></div>
+                    <div class="stats-chip"><span style="color:var(--local-color)">Lokal</span><span>${allD.filter(d=>normalizeCat(d.kategori)==='Akun Lokal').length}</span></div>
+                </div>
+
+                <div class="search-box">
+                    <svg class="search-icon icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="search" id="searchInput" class="search-input" placeholder="Cari..." value="${escapeHtml(q)}" oninput="renderView()">
+                </div>
+
+                <div class="filter-section">
+                    <button class="filter-btn ${statusFilter==='all'?'active':''}" onclick="vibrate(); statusFilter='all'; renderView()">Semua</button>
+                    <button class="filter-btn ${statusFilter==='active'?'active':''}" onclick="vibrate(); statusFilter='active'; renderView()">Aktif</button>
+                    <button class="filter-btn ${statusFilter==='inactive'?'active':''}" onclick="vibrate(); statusFilter='inactive'; renderView()">Non-Aktif</button>
+                </div>
+                
+                <div class="swipe-hint"><svg class="icon icon-sm" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Geser kartu ke kiri untuk menu</div>
+                <div class="grid-container">
+            `;
+
+            if(fData.length===0) html += `<div class="empty-state">${ICONS.empty} <p>Kosong</p></div>`;
+            else {
+                fData.forEach(i => {
+                    const act = isStatusActive(i.status);
+                    const cat = normalizeCat(i.kategori); const aff = normalizeAff(i.affiliate);
+                    html += `
+                        <div class="swipe-wrapper">
+                            <div class="swipe-content">
+                                <div class="card-header">
+                                    <div class="email-icon-box ${act?'active':'inactive'}">${ICONS.folder}</div>
+                                    <span class="status-badge ${act?'active':'inactive'}">${act?ICONS.active:ICONS.inactive} ${act?'Digunakan':'Non-Aktif'}</span>
+                                </div>
+                                <div class="account-title">${escapeHtml(i.akun)}</div>
+                                <div class="badge-group">
+                                    <span class="tag-badge ${cat==='Akun Amerika'?'amerika':'local'}">${cat==='Akun Amerika'?ICONS.usa:ICONS.lokal} ${escapeHtml(cat.replace('Akun ',''))}</span>
+                                    <span class="tag-badge ${aff==='Affiliate ON'?'on':'off'}">${aff==='Affiliate ON'?ICONS.link:''} ${aff==='Affiliate ON'?'Aff. ON':'No Aff'}</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="card-body-row"><span>Email</span><span class="val">${escapeHtml(i.email)}</span></div>
+                                    <div class="card-body-row"><span>Pass</span><span class="val">${escapeHtml(i.password)}</span></div>
+                                    ${renderTimerHtml(i, act)}
+                                </div>
+                            </div>
+                            <div class="swipe-actions">
+                                <button class="action-btn move" onclick="vibrate(); openMoveModal(${i.id})"><svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> Pindah</button>
+                                <button class="action-btn edit" onclick="vibrate(); openModalForEdit(${i.id})"><svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>
+                                <button class="action-btn del" onclick="vibrate(); showConfirm('Hapus Akun', 'Hapus ${escapeHtml(i.akun)}?', ()=>syncWithServer(globalData.filter(d=>d.id!=${i.id})))"><svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            container.innerHTML = html + `</div>`;
+        }
+    }
+
+
+    function renderAccountCards() {
+        const container = document.getElementById('dynamicViewContainer');
+        const q = (document.getElementById('tableSearch')?.value || '').toLowerCase().trim();
+        let data = globalData.filter(i =>
+            (!q || [i.akun,i.email,i.kategori,i.status,i.folder,i.password].some(v=>String(v||'').toLowerCase().includes(q))) &&
+            (statusFilter==='all' || (statusFilter==='active' ? isStatusActive(i.status) : !isStatusActive(i.status)))
+        );
+        const active = globalData.filter(i=>isStatusActive(i.status)).length;
+        let html = `
+            <div class="folder-root-header">
+                <div>
+                    <div class="folder-root-title">Semua Akun</div>
+                    <div style="font-size:10px;color:var(--text-muted);margin-top:3px;">${globalData.length} akun · ${active} aktif</div>
+                </div>
+                <button class="btn-action-glass" onclick="vibrate(); accountViewMode='folder'; renderView()">← Folder</button>
+            </div>
+            <div class="search-box">
+                <svg class="search-icon icon-sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="tableSearch" class="search-input" placeholder="Cari akun, email, folder..." value="${escapeHtml(q)}" oninput="renderAccountCards()">
+            </div>
+            <div class="filter-section">
+                <button class="filter-btn ${statusFilter==='all'?'active':''}" onclick="vibrate(); statusFilter='all'; renderAccountCards()">Semua</button>
+                <button class="filter-btn ${statusFilter==='active'?'active':''}" onclick="vibrate(); statusFilter='active'; renderAccountCards()">Aktif</button>
+                <button class="filter-btn ${statusFilter==='inactive'?'active':''}" onclick="vibrate(); statusFilter='inactive'; renderAccountCards()">Non-Aktif</button>
+            </div>
+            <div class="table-mode-note">Mode Tabel · tampil sebagai card agar nyaman di layar HP</div>
+            <div class="account-card-list">
+        `;
+        if(!data.length) {
+            html += `<div class="empty-state">${ICONS.empty}<p>Tidak ada akun</p></div>`;
+        } else {
+            data.forEach(i => {
+                const act=isStatusActive(i.status), cat=normalizeCat(i.kategori), aff=normalizeAff(i.affiliate);
+                const timer = i.timerDuration>0 ? formatDuration(i.timerDuration) : 'Tanpa Timer';
+                html += `
+                    <div class="direct-account-card">
+                        <div class="dac-top">
+                            <div style="min-width:0;">
+                                <div class="dac-name">${escapeHtml(i.akun)}</div>
+                                <div class="dac-sub">${escapeHtml(i.email)}</div>
+                            </div>
+                            <span class="status-badge ${act?'active':'inactive'}">${act?ICONS.active:ICONS.inactive} ${act?'Aktif':'Non-Aktif'}</span>
+                        </div>
+                        <div class="badge-group" style="margin-bottom:0;">
+                            <span class="tag-badge ${cat==='Akun Amerika'?'amerika':'local'}">${cat==='Akun Amerika'?ICONS.usa:ICONS.lokal} ${escapeHtml(cat.replace('Akun ',''))}</span>
+                            <span class="tag-badge ${aff==='Affiliate ON'?'on':'off'}">${aff==='Affiliate ON'?ICONS.link:''} ${aff==='Affiliate ON'?'Aff. ON':'No Aff'}</span>
+                        </div>
+                        <div class="dac-grid">
+                            <div class="dac-item"><span class="dac-label">Folder</span><span class="dac-value">${escapeHtml(i.folder||DEFAULT_FOLDER)}</span></div>
+                            <div class="dac-item"><span class="dac-label">Timer</span><span class="dac-value">${timer}</span></div>
+                            <div class="dac-item"><span class="dac-label">Password</span><span class="dac-value">${escapeHtml(i.password)}</span></div>
+                            <div class="dac-item"><span class="dac-label">Status</span><span class="dac-value">${act?'Sedang digunakan':'Tidak digunakan'}</span></div>
+                        </div>
+                        ${act ? renderTimerHtml(i, act) : ''}
+                        <div class="dac-actions">
+                            <button class="move" onclick="vibrate(); openMoveModal(${i.id})">Pindah</button>
+                            <button class="edit" onclick="vibrate(); openModalForEdit(${i.id})">Edit</button>
+                            <button class="del" onclick="vibrate(); showConfirm('Hapus Akun','Hapus ${escapeHtml(i.akun)}?',()=>syncWithServer(globalData.filter(d=>d.id!=${i.id})))">Hapus</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        container.innerHTML = html + `</div>`;
+        const si = document.getElementById('tableSearch');
+        if(si) { si.focus(); try { si.setSelectionRange(si.value.length, si.value.length); } catch(e) {} }
+    }
+
+    function formatDuration(sec) {
+        sec = Number(sec)||0;
+        if(sec===86400) return '24 Jam';
+        if(sec===259200) return '3 Hari';
+        if(sec===604800) return '7 Hari';
+        if(sec===2592000) return '30 Hari';
+        return sec>0 ? Math.round(sec/86400) + ' Hari' : 'Tanpa Timer';
+    }
+
+    /* ACTION MODALS */
+    function openMoveModal(id) {
+        movingAccountId = id; selectedTargetFolder = globalData.find(d=>d.id==id)?.folder || DEFAULT_FOLDER;
+        document.getElementById('folderChoiceList').innerHTML = getAvailableFolders().map(f => `<div class="folder-choice-card ${f===selectedTargetFolder?'selected':''}" onclick="vibrate(); selectedTargetFolder='${escapeHtml(f)}'; Array.from(this.parentElement.children).forEach(c=>c.classList.remove('selected')); this.classList.add('selected');"><div class="choice-name-wrapper">${ICONS.folder} &nbsp;${escapeHtml(f)}</div><span class="choice-check">${ICONS.check}</span></div>`).join('');
+        document.getElementById('moveModal').style.display='flex';
+    }
+    function closeMoveModal() { document.getElementById('moveModal').style.display='none'; }
+    function confirmMoveFolder() {
+        if(!movingAccountId) return;
+        syncWithServer(globalData.map(d=>d.id==movingAccountId?{...d, folder:selectedTargetFolder}:d));
+        closeMoveModal();
+    }
+
+    function openModalForAdd() {
+        vibrate(); document.getElementById('singleForm').reset(); document.getElementById('editDataId').value=''; 
+        document.getElementById('editTitleHeader').textContent='Tambah Akun'; 
+        document.getElementById('akunFolder').innerHTML = getAvailableFolders().map(f=>`<option value="${f}">${f}</option>`).join('');
+        if(currentOpenFolder) document.getElementById('akunFolder').value = currentOpenFolder;
+        document.getElementById('timerFormGroup').style.display='block'; document.getElementById('adminModal').style.display="flex";
+    }
+    function openModalForEdit(id) {
+        const item = globalData.find(d=>d.id==id); if(!item) return;
+        vibrate(); document.getElementById('editTitleHeader').textContent='Edit Akun'; document.getElementById('editDataId').value=item.id; 
+        document.getElementById('akun').value=item.akun; document.getElementById('email').value=item.email; document.getElementById('password').value=item.password;
+        document.getElementById('kategori').value=normalizeCat(item.kategori); document.getElementById('affiliate').value=normalizeAff(item.affiliate);
+        document.getElementById('status').value=isStatusActive(item.status)?'Sedang digunakan':'Tidak digunakan';
+        document.getElementById('akunFolder').innerHTML = getAvailableFolders().map(f=>`<option value="${f}">${f}</option>`).join('');
+        document.getElementById('akunFolder').value=item.folder||DEFAULT_FOLDER;
+        const dur = item.timerDuration||0;
+        const allowed = [0,86400,259200,604800,2592000];
+        document.getElementById('timerPreset').value = allowed.includes(dur) ? String(dur) : '0';
+        document.getElementById('timerFormGroup').style.display=isStatusActive(item.status)?'block':'none'; document.getElementById('adminModal').style.display="flex";
+    }
+    function closeModal() { document.getElementById('adminModal').style.display='none'; }
+    document.getElementById('status').addEventListener('change', e => document.getElementById('timerFormGroup').style.display=isStatusActive(e.target.value)?'block':'none');
+    
+    document.getElementById('singleForm').addEventListener('submit', e => {
+        e.preventDefault(); vibrate(); const id = document.getElementById('editDataId').value, stat = document.getElementById('status').value, dur = parseInt(document.getElementById('timerPreset').value||0);
+        const base = { folder: document.getElementById('akunFolder').value||DEFAULT_FOLDER, akun: document.getElementById('akun').value.trim(), email: document.getElementById('email').value.trim(), password: document.getElementById('password').value.trim(), kategori: document.getElementById('kategori').value, affiliate: document.getElementById('affiliate').value, status: stat, timerDuration: dur };
+        if(id) syncWithServer(globalData.map(i => i.id!=id ? i : { ...i, ...base, timerEndAt: !isStatusActive(stat) ? null : (!isStatusActive(i.status)||i.timerDuration!==dur ? (dur>0?Date.now()+(dur*1000):null) : i.timerEndAt), timerPausedRemaining: !isStatusActive(stat) ? (i.timerEndAt>0?getTimerRemaining(i):null) : null }));
+        else syncWithServer([...globalData, { id:Date.now(), ...base, timerEndAt:isStatusActive(stat)&&dur>0?Date.now()+(dur*1000):null, timerPausedRemaining:null }]);
+        closeModal();
+    });
+
+    /* FETCH & SYNC */
+    async function fetchData() {
+        document.getElementById('dynamicViewContainer').innerHTML = `<div class="folder-root-header"><div class="skeleton-block" style="width:120px;height:24px;"></div></div><div class="folder-list-grid">${Array(4).fill(`<div class="skeleton-block" style="width:100%;height:120px;border-radius:16px;"></div>`).join('')}</div>`;
+        try {
+            const res = await fetch(URL, { headers: { 'X-Master-Key': MASTER_KEY } });
+            const jsonData = await res.json(); 
+            globalData = Array.isArray(jsonData.record) ? jsonData.record : [];
+
+            let exp = false; globalData = globalData.map(i => {
+                let n = { ...i, folder: i.folder||DEFAULT_FOLDER, timerDuration: Number(i.timerDuration)||0, timerEndAt: Number(i.timerEndAt)||null, timerPausedRemaining: Number(i.timerPausedRemaining)>=0?Number(i.timerPausedRemaining):null };
+                if (isStatusActive(n.status) && n.timerEndAt>0 && n.timerEndAt<=Date.now()) { n.status='Tidak digunakan'; n.timerEndAt=null; n.timerPausedRemaining=0; exp=true; } return n;
+            });
+            renderView(); if (exp) syncWithServer(globalData);
+        } catch(e) { showToast('Gagal memuat', 'error'); }
+    }
+    
+    async function syncWithServer(newData) {
+        try {
+            await fetch(URL, { method:'PUT', headers:{'Content-Type':'application/json','X-Master-Key':MASTER_KEY}, body:JSON.stringify(newData) });
+            globalData = newData; renderView(); showToast('Tersimpan!');
+        } catch(e) { showToast('Gagal simpan!', 'error'); }
+    }
+    function resetSemuaStatus() { showConfirm('Reset Status', 'Semua akun akan diubah jadi Non-Aktif?', () => syncWithServer(globalData.map(i => { let c={...i, status:'Tidak digunakan'}; if(c.timerEndAt>0) c.timerPausedRemaining=getTimerRemaining(c); c.timerEndAt=null; return c; }))); }
+
+    /* TIMERS */
+    function getTimerRemaining(i) { return i.timerEndAt>0 ? Math.max(0,Math.ceil((i.timerEndAt-Date.now())/1000)) : (i.timerPausedRemaining!==null ? Math.max(0,Math.floor(i.timerPausedRemaining)) : (i.timerDuration>0?i.timerDuration:0)); }
+    function renderTimerHtml(i, act) {
+        if(!act) return ''; const s = i.timerDuration<=0?'not':(i.timerEndAt>0?(i.timerEndAt<=Date.now()?'exp':'run'):(i.timerPausedRemaining<=0?'exp':'pau')), r = getTimerRemaining(i), t = Math.max(0,Math.floor(r)), f = [Math.floor(t/3600), Math.floor((t%3600)/60), t%60].map(v=>String(v).padStart(2,'0')).join(':');
+        if(s==='not') return `<div class="timer-section"><div class="timer-display"><span class="timer-label">${ICONS.clock} Timer</span><span class="timer-value" style="color:var(--text-muted)">--:--:--</span></div><div class="timer-actions"><button class="btn-timer" onclick="vibrate(); openModalForEdit(${i.id})">Set Timer</button></div></div>`;
+        if(s==='exp') return `<div class="timer-section"><div class="timer-display"><span class="timer-label" style="color:var(--danger-color)">${ICONS.clock} Selesai</span><span class="timer-value expired">00:00:00</span></div><div class="timer-actions"><button class="btn-timer" onclick="vibrate(); const d=globalData.find(x=>x.id==${i.id}); if(d.timerDuration<=0)openModalForEdit(${i.id});else{d.timerPausedRemaining=null;d.timerEndAt=Date.now()+(d.timerDuration*1000);renderView();syncWithServer(globalData);}">Ulangi</button></div></div>`;
+        return `<div class="timer-section"><div class="timer-display"><span class="timer-label">${ICONS.clock} Sisa</span><span class="timer-value ${s==='run'?'running':'paused'}" id="timerValue-${i.id}">${f}</span></div><div class="timer-actions"><button class="btn-timer" onclick="vibrate(); const d=globalData.find(x=>x.id==${i.id}); if('${s}'==='run'){d.timerPausedRemaining=getTimerRemaining(d);d.timerEndAt=null;}else{d.timerEndAt=Date.now()+(getTimerRemaining(d)*1000);d.timerPausedRemaining=null;}renderView();syncWithServer(globalData);">${s==='run'?'Pause':'Mulai'}</button><button class="btn-timer" onclick="vibrate(); const d=globalData.find(x=>x.id==${i.id}); d.timerPausedRemaining=null; d.timerEndAt=Date.now()+(d.timerDuration*1000);renderView();syncWithServer(globalData);">Reset</button></div></div>`;
+    }
+    setInterval(() => {
+        let e=false; globalData.forEach(i => {
+            if(!isStatusActive(i.status)) return;
+            const el=document.getElementById(`timerValue-${i.id}`), s=i.timerDuration<=0?'not':(i.timerEndAt>0?(i.timerEndAt<=Date.now()?'exp':'run'):(i.timerPausedRemaining<=0?'exp':'pau'));
+            if(s==='exp') { i.status='Tidak digunakan'; i.timerEndAt=null; i.timerPausedRemaining=0; e=true; }
+            else if(el) { const t=Math.max(0,Math.floor(getTimerRemaining(i))); el.textContent=[Math.floor(t/3600), Math.floor((t%3600)/60), t%60].map(v=>String(v).padStart(2,'0')).join(':'); el.className=`timer-value ${s==='run'?'running':'paused'}`; }
+        });
+        if(e) { renderView(); syncWithServer(globalData); }
+    }, 1000);
+    
+    fetchData();
+</script>
+</body>
+</html>
